@@ -1,4 +1,5 @@
-const BASE_URL = "https://backend-eventbooking.onrender.com/api";
+ const BASE_URL = "https://backend-eventbooking.onrender.com/api";
+//const BASE_URL = "http://localhost:5000/api";
 interface ApiProps {
   path: string;
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";

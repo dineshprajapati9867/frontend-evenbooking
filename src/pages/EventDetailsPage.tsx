@@ -5,25 +5,25 @@ import { api } from "../api/Api";
 import { Event } from "../interface";
 import toast from "react-hot-toast";
 
-const seats = Array.from({ length: 50 }, (_, index) => ({
+const seats = Array.from({ length: 120 }, (_, index) => ({
   id: index + 1,
   seatNumber: `A${index + 1}`,
   status: "available",
 }));
 
 const EventDetailsPage = () => {
-  const navigate=useNavigate()
+  const navigate = useNavigate();
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const { id } = useParams();
   const [event, setEvents] = useState<Event>();
   const [isLoading, setIsLoading] = useState(true);
   const [isReserveLoading, setIsReserveLoading] = useState(false);
-
   const [isBookingLoading, setIsBookingLoading] = useState(false);
   const [reservationId, setReservationId] = useState<string>("");
   const [timeLeft, setTimeLeft] = useState(0);
   const [reservedSeats, setReservedSeats] = useState<string[]>([]);
   const [bookedSeats, setBookedSeats] = useState<string[]>([]);
+
   const getEvent = async () => {
     try {
       const response = await api({
@@ -38,39 +38,37 @@ const EventDetailsPage = () => {
     }
   };
 
-const getReservationAndBookingStatus = async () => {
-  try {
-    const response = await api({
-      path: `events/${id}/seats`,
-    });
+  const getReservationAndBookingStatus = async () => {
+    try {
+      const response = await api({
+        path: `events/${id}/seats`,
+      });
 
-    setBookedSeats(response.bookedSeats || []);
+      setBookedSeats(response.bookedSeats || []);
 
-    const reservation = response.reservation;
+      const reservation = response.reservation;
 
-    if (!reservation) return;
+      if (!reservation) return;
 
-    setReservationId(reservation._id);
+      setReservationId(reservation._id);
 
-    setReservedSeats(reservation.seatNumbers);
+      setReservedSeats(reservation.seatNumbers);
 
-    const remainingTime = Math.floor(
-      (new Date(reservation.expiresAt).getTime() -
-        Date.now()) /
-        1000,
-    );
+      const remainingTime = Math.floor(
+        (new Date(reservation.expiresAt).getTime() - Date.now()) / 1000,
+      );
 
-    if (remainingTime > 0) {
-      setTimeLeft(remainingTime);
+      if (remainingTime > 0) {
+        setTimeLeft(remainingTime);
+      }
+    } catch (error: any) {
+      //toast.error(error.message);
+      console.log(error);
     }
-  } catch (error: any) {
-    toast.error(error.message);
-    console.log(error);
-  }
-};
+  };
   const handleReserveSeats = async () => {
-        if(!localStorage.getItem('isLoginUser')){
-      navigate("/login")
+    if (!localStorage.getItem("isLogin") || false) {
+      navigate("/login");
     }
     try {
       setIsReserveLoading(true);
@@ -101,9 +99,6 @@ const getReservationAndBookingStatus = async () => {
   };
 
   const handleBooking = async () => {
-    if(!localStorage.getItem('isLoginUser')){
-      navigate("/login")
-    }
     try {
       setIsBookingLoading(true);
 
@@ -131,8 +126,9 @@ const getReservationAndBookingStatus = async () => {
   };
   useEffect(() => {
     getEvent();
-    getReservationAndBookingStatus()
+    getReservationAndBookingStatus();
   }, []);
+
   const handleSeatSelect = (seatNumber: string) => {
     setSelectedSeats((prev) =>
       prev.includes(seatNumber)
@@ -185,19 +181,17 @@ const getReservationAndBookingStatus = async () => {
       {isLoading ? (
         <Loader />
       ) : (
-        <div className="min-h-screen bg-slate-50 p-6">
+        <div className="min-h-screen bg-slate-50 p-3 sm:p-6">
           <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[320px_1fr]">
-            <div className="space-y-6">
+            <div className="order-2 space-y-6 lg:order-1">
               <div className="rounded-2xl bg-white p-5 shadow-sm">
                 <img
                   src={event?.image}
                   alt="event"
-                  className="h-52 w-full rounded-xl object-cover"
+                  className="h-40 w-full rounded-xl object-cover sm:h-52"
                 />
 
-                <h2 className="mt-4 text-xl font-bold">
-                  {event?.name}
-                </h2>
+                <h2 className="mt-4 text-xl font-bold">{event?.name}</h2>
 
                 <p className="mt-2 text-slate-600">{event?.venue}</p>
 
@@ -239,7 +233,7 @@ const getReservationAndBookingStatus = async () => {
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-white p-5 shadow-sm">
+              <div className="sticky top-24 rounded-2xl bg-white p-5 shadow-sm">
                 <h3 className="font-semibold">Selected Seats</h3>
 
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -288,13 +282,7 @@ const getReservationAndBookingStatus = async () => {
               </div>
             </div>
 
-            <div className="rounded-2xl bg-white p-6 shadow-sm">
-              <div className="mb-8 text-center">
-                <div className="mx-auto w-80 rounded-lg bg-slate-200 py-3 font-semibold">
-                  STAGE
-                </div>
-              </div>
-
+            <div className="order-1 rounded-2xl bg-white p-4 shadow-sm lg:order-2 lg:p-6 max-h-[50vh] md:max-h-screen overflow-y-auto">
               <div className="grid grid-cols-5 gap-3 md:grid-cols-10">
                 {seats.map((seat) => {
                   const isSelected = selectedSeats.includes(seat.seatNumber);
@@ -304,7 +292,7 @@ const getReservationAndBookingStatus = async () => {
                     <button
                       key={seat.id}
                       onClick={() => handleSeatSelect(seat.seatNumber)}
-                      className={`cursor-pointer h-12 rounded-lg border text-sm font-medium transition ${getSeatColor(
+                      className={`cursor-pointer h-10 rounded-lg border text-xs font-medium transition sm:h-12 sm:text-sm ${getSeatColor(
                         isSelected,
                         isReserved,
                         isBooked,
@@ -320,7 +308,7 @@ const getReservationAndBookingStatus = async () => {
         </div>
       )}
     </>
-  );  
+  );
 };
 
 export default EventDetailsPage;

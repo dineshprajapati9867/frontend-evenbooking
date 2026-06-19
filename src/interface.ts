@@ -5,4 +5,7 @@ export interface Event {
   dateTime: string;
   totalSeats: number;
   image: string;
+  
+availableSeats:number
+
 }

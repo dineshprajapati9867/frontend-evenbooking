@@ -37,7 +37,6 @@ const EventCard = ({ event }: EventCardProps) => {
                 minute: "2-digit",
               })}
           </p>
-          <p>🎟️ {event.totalSeats} Seats Available</p>
         </div>
 
         <button
